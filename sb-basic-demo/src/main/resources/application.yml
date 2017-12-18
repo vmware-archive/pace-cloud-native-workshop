@@ -1,0 +1,14 @@
+logging:
+  level:
+    io.pivotal: info
+
+welcomeMessage: Welcome to Spring Boot!
+---
+spring:
+  profiles: dev
+welcomeMessage: Welcome to Spring Boot Dev!
+---
+spring:
+  profiles: prod
+welcomeMessage: Welcome to Spring Boot Prod!
+
