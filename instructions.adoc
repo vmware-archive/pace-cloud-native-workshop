@@ -1,0 +1,37 @@
+= PACE Cloud Native Developer Workshop
+
+The purpose of this workshop is to introduce some basic features of Spring Boot, and deploy the resulting application to Pivotal Cloud Foundry.
+
+== Creating a Basic Spring Boot application
+
+. Navigate to http://start.spring.io/, and provide a general overview of the site.  Be sure to mention the following:
+- Point out the site can generate Maven or Gradle projects
+- It's possible to create shell projects for Java and other languages, and
+- Click on the _Show Version_ link to display the full set of available options, directing attention to the numerous dependencies available.
+
+. If it's not running already launch SpringSource Tool Suite (STS)
+
+. `File` -> `New` -> `Spring Starter Project`.  Point out the *Service URL* is set to http://start.spring.io/.
+
+. Use the following information to fill out the input fields (Other values take them as default). Click *Next* when done.
+
++
+[options="header"]
+[width="20%"]
+|=======================
+|Field|Value
+|Name| *sb-basic-demo*
+|Group| *io.pivotal.pace*
+|Artifact| *sb-basic-demo*
+|Package| *io.pivotal.pace*
+|=======================
+
++
+image:img/starter1.png[Spring Boot Initializer]
+
+. Select * `2.0.0.M7` (or most current 2.0 release).
+
+. Add the following dependencies: `Actuator`, `JPA`, `H2`, `MySQL`, `Web`, `Rest Repositories`. Click *Finish* when done.
+
++
+image:img/starter2.png[Spring Boot Initializer]
