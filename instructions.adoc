@@ -244,40 +244,9 @@ public interface GreetingRepository extends JpaRepository<Greeting, Integer> {
 }
 ----
 
-. Finally, we will need to initialize our repository. Create a `GreetingConfig` class that will insert the greetings on startup.
+. Let's add a `greeting` endpoint to our `SBController` class to return the greeting from the repository, based on the language.  The resulting class should look as follows:
 
 +
-.GreetingConfig.java.
-[source,java]
-----
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-@Configuration
-public class GreetingConfig {
-
-  Logger logger = LoggerFactory.getLogger(GreetingConfig.class);
-
-  // Loads the database on startup
-  @Bean
-  CommandLineRunner loadDatabase(GreetingRepository gr) {
-    return commandLineRunner -> {
-      logger.info("loading database..");
-      gr.save(new Greeting("English","Hello"));
-      gr.save(new Greeting("Spanish","Hola"));
-      gr.save(new Greeting("French","Bonjour"));
-      logger.debug("record count: {}", gr.count());
-      gr.findAll().forEach(x -> logger.debug(x.toString()));
-    };
-  }
-}
-----
-
-. Let's add a `greeting` endpoint to our `SBController` class to return the greeting from the database, based on the language.  The resulting class should look as follows:
-
 .SBController.java.
 [source,java]
 ----
@@ -315,4 +284,120 @@ public class SBController {
 			return greeting.get(0).getText();
 	}
 }
+----
+
+. Add a property into the `application.yml` file to tell Spring to generate the DB tables on startup.  The resulting file should have the following content:
+
++
+.application.yml.
+[source,yaml]
+----
+logging:
+  level:
+    io.pivotal: info
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: auto
+
+greetingLanguage: English
+---
+spring:
+  profiles: dev
+greetingLanguage: French
+---
+spring:
+  profiles: prod
+greetingLanguage: Spanish
+----
+
+. Finally, we will need to initialize our repository. Create a `GreetingConfig` class that will insert the greetings on startup.
+
++
+.GreetingConfig.java.
+[source,java]
+----
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class GreetingConfig {
+
+  Logger logger = LoggerFactory.getLogger(GreetingConfig.class);
+
+  // Loads the database on startup
+  @Bean
+  CommandLineRunner loadDatabase(GreetingRepository gr) {
+    return commandLineRunner -> {
+      logger.info("loading database..");
+      gr.save(new Greeting("English","Hello"));
+      gr.save(new Greeting("Spanish","Hola"));
+      gr.save(new Greeting("French","Bonjour"));
+      logger.debug("record count: {}", gr.count());
+      gr.findAll().forEach(x -> logger.debug(x.toString()));
+    };
+  }
+}
+----
+
+. Package and launch the app locally from the command line using different environment variable settings, and verify that the correct greeting is showing when hitting the `http://localhost:8080/greeting` endpoint.  Examine the log output, noting that the H2 in-memory database is being used.
+
++
+[source,bash]
+----
+GREETINGLANGUAGE=Spanish java -jar target/sb-basic-demo-0.0.1-SNAPSHOT.jar
+----
+
++
+image:img/greeting-hola.png[]
+
+== Running on PCF
+
+. Push the app to PCF.
+
++
+[source,bash]
+----
+cf push sb-basic-demo -p target/sb-basic-demo-0.0.1-SNAPSHOT.jar --random-route
+----
+
++
+Walk the audience through the output of the push process, describing what is happening at various points.  Open the Apps Manager and provide a tour of the interface.  Examine the logs, again pointing out that the in-memory database is being used.
+
+. Extract the manifest for the app.
+
++
+[source,bash]
+----
+cf create-app-manifest sb-basic-demo
+----
+
++
+Examine the contents of the manifest file.
+
++
+.sb-basic-demo_manifest.yml.
+[source,yaml]
+----
+applications:
+- name: sb-basic-demo
+  disk_quota: 1G
+  instances: 1
+  memory: 1G
+  routes:
+  - route: sb-basic-demo-nonrepresentational-incredulity.cfapps.io
+  stack: cflinuxfs2
+----
+
+. Create a MySQL service instance, and bind the app to it.
+
++
+[source,bash]
+----
+cf create-service cleardb spark demo-db
+cf bind-service sb-basic-demo demo-db
 ----
