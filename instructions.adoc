@@ -175,3 +175,144 @@ java -jar target/sb-basic-demo-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 
 +
 image:img/dev-profile.png[]
+
+== Add a Database Repository
+
+. Create a new `Greeting` domain object class, `Greeting.java` with the following content:
+
++
+.Greeting.java.
+[source,java]
+----
+package io.pivotal.pace;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
+public class Greeting {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Integer id;
+  private String language;
+  private String text;
+
+  public Greeting(String language, String text) {
+    super();
+    this.language = language;
+    this.text = text;
+  }
+
+  @Override
+  public String toString() {
+    return "Greeting [id=" + id + ", language=" + language + ", text=" + text + "]";
+  }
+
+  public Integer getId() {
+    return id;
+  }
+
+  public String getLanguage() {
+    return language;
+  }
+
+  public String getText() {
+	    return text;
+	  }
+
+  public Greeting() {}
+}
+----
+
+. Create a `GreetingRepository` class, which will be backed by a database.  Paste the following code into the `GreetingRepository.java` class.
+
++
+.GreetingRepository.java.
+[source,java]
+----
+package io.pivotal.pace;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+import org.springframework.data.repository.query.Param;
+
+public interface GreetingRepository extends JpaRepository<Greeting, Integer> {
+	  List<Greeting> findByLanguage(@Param("language") String language);
+}
+----
+
+. Finally, we will need to initialize our repository. Create a `GreetingConfig` class that will insert the greetings on startup.
+
++
+.GreetingConfig.java.
+[source,java]
+----
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class GreetingConfig {
+
+  Logger logger = LoggerFactory.getLogger(GreetingConfig.class);
+
+  // Loads the database on startup
+  @Bean
+  CommandLineRunner loadDatabase(GreetingRepository gr) {
+    return commandLineRunner -> {
+      logger.info("loading database..");
+      gr.save(new Greeting("English","Hello"));
+      gr.save(new Greeting("Spanish","Hola"));
+      gr.save(new Greeting("French","Bonjour"));
+      logger.debug("record count: {}", gr.count());
+      gr.findAll().forEach(x -> logger.debug(x.toString()));
+    };
+  }
+}
+----
+
+. Let's add a `greeting` endpoint to our `SBController` class to return the greeting from the database, based on the language.  The resulting class should look as follows:
+
+.SBController.java.
+[source,java]
+----
+package io.pivotal.pace;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class SBController {
+
+	private GreetingRepository greetingRepository;
+
+	@Value("${greetingLanguage}")
+	private String language;
+
+	public SBController(GreetingRepository greetingRepository) {
+		this.greetingRepository = greetingRepository;
+	}
+
+	@RequestMapping("/")
+	public String greetingLanguage() {
+		return "Greeting language is " + language;
+	}
+
+	@RequestMapping("/greeting")
+	public String greeting() {
+		List<Greeting> greeting = greetingRepository.findByLanguage(language);
+		if (greeting.isEmpty())
+			return "Welcome";
+		else
+			return greeting.get(0).getText();
+	}
+}
+----
