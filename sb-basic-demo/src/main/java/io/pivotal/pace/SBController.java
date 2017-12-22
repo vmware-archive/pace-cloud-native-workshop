@@ -27,7 +27,7 @@ public class SBController {
 	public String greeting() {
 		List<Greeting> greeting = greetingRepository.findByLanguage(language);
 		if (greeting.isEmpty()) 
-			return "Welcome";
+			return "Greeting not found for " + language;
 		else
 			return greeting.get(0).getText();
 	}
