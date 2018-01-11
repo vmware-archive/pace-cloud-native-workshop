@@ -6,6 +6,10 @@ spring:
     hibernate:
       ddl-auto: update
 
+management:
+  security:
+    enabled: false
+    
 greetingLanguage: English
 ---
 spring:
