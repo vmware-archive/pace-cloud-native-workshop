@@ -8,7 +8,7 @@ The purpose of this workshop is demonstrate how Spring Cloud can help developers
 
 . In your Github account, create a public repository to hold the application configuration properties.
 
-. Check out the https://github.com/Pivotal-Field-Engineering/pace-cloud-native-workshop/tree/enterprise-microservices-with-spring-cloud[sample project].
+. Check out the https://github.com/Pivotal-Field-Engineering/pace-cloud-native-workshop/tree/spring-cloud-config-server[sample project].
 
 . Open the `application.yml` in the `config-server/src/main/resources` directory of the Pace Cloud Native Workshop repository, and change the `spring.cloud.config.server.git.uri` to point to the new repository you just created above.
 
