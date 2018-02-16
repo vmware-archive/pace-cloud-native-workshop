@@ -5,6 +5,7 @@ applications:
   instances: 1
   memory: 1G
   buildpack: java_buildpack
-  routes:
-  - route: sb-basic-demo.cfapps.io
+  random-route: true
   stack: cflinuxfs2
+  services:
+  - service-registry
