@@ -4,6 +4,8 @@ The purpose of this workshop is demonstrate how Spring Cloud can help developers
 
 == Spring Cloud Circuit Breaker
 
+. Check out the https://github.com/Pivotal-Field-Engineering/pace-cloud-native-workshop/tree/spring-cloud-circuit-breaker[sample project].
+
 . If it doesn't already exist, create the `service-registry` Spring Cloud Service Registry instance in PWS.
 
 +
@@ -28,7 +30,16 @@ image:img/service-instance-creation.png[]
 cf create-service p-circuit-breaker-dashboard standard circuit-breaker-dashboard
 ----
 
++
 NOTE: Wait for both services to be created before pushing any apps.
+
+. Build both the `client` and `sb-basic-demo` apps.
+
++
+[source,bash]
+----
+mvn clean package -DskipTests
+----
 
 . Push the `sb-basic-demo` and `client` apps.
 
@@ -51,7 +62,7 @@ cf stop sb-basic-demo
 ----
 
 +
-Now go back and try to hit the URL of the client app.  You should now see `Greeting Language is gibberish!!`, with the number of service call failures in red.
+Now go back and try to hit the URL of the client app.  You should now see `Greeting Language is gibberish!!`, with the number of service call failures in red on the dashboard.
 
 +
 image:img/gibberish.png[]
