@@ -2,7 +2,7 @@
 
 The purpose of this workshop is demonstrate how Spring Cloud can help developers create robust cloud native microservice applications.
 
-== Spring Cloud Service Registry (Eureka)
+== Spring Cloud Service Discovery (Eureka)
 
 === Create and Register the Service
 
