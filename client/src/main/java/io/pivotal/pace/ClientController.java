@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
 @RestController
-@EnableDiscoveryClient
 public class ClientController {
 	
     @Bean
@@ -25,6 +26,7 @@ public class ClientController {
     private RestTemplate restTemplate;
 
     @RequestMapping("/")
+    @HystrixCommand(fallbackMethod = "fallbackPhrase")
 	public String phrase() {
 		
 		URI uri = UriComponentsBuilder.fromUriString("//sb-basic-demo/language")
@@ -35,4 +37,7 @@ public class ClientController {
 		return "Greeting language is " + language;
 	}
 	
+	public String fallbackPhrase() {
+		return "Greeting language is gibberish!!";
+	}
 }

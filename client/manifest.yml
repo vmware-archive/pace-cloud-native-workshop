@@ -9,3 +9,4 @@ applications:
   stack: cflinuxfs2
   services:
   - service-registry
+  - circuit-breaker-dashboard
